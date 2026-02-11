@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>💌 Message</h2>
+
+{% if sender_flagged %}
+  <div class="warning">
+    This sender is flagged as a FAKE ACCOUNT (suspicious activity detected)
+  </div>
+{% endif %}
+
+<div class="message-info">
+  <strong>From:</strong> {{ msg.sender }} <br>
+  <strong>To:</strong> {{ msg.recipient }} <br>
+  <strong>Timestamp:</strong> {{ msg.timestamp }}
+</div>
+
+{% if tampered %}
+  <div style="background: #ffe6e6; border-left: 4px solid #e74c3c; color: #c0392b; padding: 15px; margin-bottom: 20px; border-radius: 6px; font-weight: 500;">
+    🚨 DATA INTEGRITY CHECK FAILED: Hash mismatch detected - Message may have been tampered with!
+  </div>
+{% else %}
+  <div style="background: #e6ffe6; border-left: 4px solid #27ae60; color: #1e5631; padding: 15px; margin-bottom: 20px; border-radius: 6px; font-weight: 500;">
+    ✓ Data integrity verified - Message has not been modified
+  </div>
+  <h3>📖 Decrypted Message</h3>
+  <pre>{{ plaintext }}</pre>
+{% endif %}
+
+<div style="margin-top: 20px;">
+  <a href="{{ url_for('dashboard') }}" style="color: #667eea; text-decoration: none; font-weight: 600;">← Back to Dashboard</a>
+</div>
+
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Welcome, {{ session.username }}!</h2>
+
+<div class="status-info">
+  <strong>Account Status:</strong> 
+  <span class="{% if user.flagged %}flagged-yes{% else %}flagged-no{% endif %}">
+    {{ 'Flagged ⚠️' if user.flagged else 'Normal ✓' }}
+  </span>
+  <br><strong>Bio:</strong> {{ user.bio if user.bio else '(empty)' }}
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('inbox')">📬 Inbox ({{ inbox|length }})</button>
+  <button class="tab-btn" onclick="showTab('sent')">📤 Sent ({{ sent|length }})</button>
+</div>
+
+<div id="inbox" class="tab-content active">
+  <h3>Inbox Messages</h3>
+  {% if inbox %}
+    {% for it in inbox %}
+      <div class="card" onclick="window.location='{{ url_for('view_message', idx=it.idx) }}'" style="cursor: pointer;">
+        <small style="color: #888;">{{ it.m.timestamp }}</small>
+        <div style="margin: 8px 0;">
+          <strong>From:</strong> {{ it.m.sender }}
+          {% if it.sender_flagged %}<span class="fake-badge">FAKE</span>{% endif %}
+        </div>
+        <small style="color: #667eea;">Click to open →</small>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state">📭 No messages in inbox</div>
+  {% endif %}
+</div>
+
+<div id="sent" class="tab-content">
+  <h3>Sent Messages</h3>
+  {% if sent %}
+    {% for it in sent %}
+      <div class="card" onclick="window.location='{{ url_for('view_message', idx=it.idx) }}'" style="cursor: pointer;">
+        <small style="color: #888;">{{ it.m.timestamp }}</small>
+        <div style="margin: 8px 0;">
+          <strong>To:</strong> {{ it.m.recipient }}
+        </div>
+        <small style="color: #667eea;">Click to open →</small>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state">📭 No sent messages yet</div>
+  {% endif %}
+</div>
+
+<script>
+  function showTab(tabName) {
+    // Hide all tabs
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    
+    // Remove active from all buttons
+    const buttons = document.querySelectorAll('.tab-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    // Show selected tab and mark button active
+    document.getElementById(tabName).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+
+{% endblock %}

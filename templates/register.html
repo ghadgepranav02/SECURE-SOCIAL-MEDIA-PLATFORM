@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Create New Account</h2>
+<form method="post">
+  <div class="form-group">
+    <label for="username">Username</label>
+    <input type="text" name="username" id="username" required placeholder="min. 4 characters">
+  </div>
+  
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password" required>
+    <small style="color: #666; display: block; margin-top: 6px;">
+      ✓ Minimum 8 characters | ✓ Uppercase & lowercase | ✓ Numbers | ✓ Special characters (!@#$... etc)
+    </small>
+  </div>
+  
+  <div class="form-group">
+    <label for="bio">Bio (Optional)</label>
+    <input type="text" name="bio" id="bio" placeholder="Tell us about yourself">
+  </div>
+  
+  <button type="submit">Create Account</button>
+</form>
+
+<div style="margin-top: 20px; text-align: center;">
+  <p>Already have an account? <a href="{{ url_for('login') }}" class="auth-link">Login here</a></p>
+</div>
+{% endblock %}

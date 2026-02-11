@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from datetime import datetime, timedelta
 import os
+
+
 from playfair import playfair_encrypt, playfair_decrypt
 from transposition import transposition_encrypt, transposition_decrypt
 from crypto_utils import (
@@ -153,5 +155,7 @@ def view_message(idx):
     return render_template('message_view.html', msg=msg, plaintext=plaintext, tampered=tampered, sender_flagged=sender_flagged, idx=idx)
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
+

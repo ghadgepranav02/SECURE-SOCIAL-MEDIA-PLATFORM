@@ -23,7 +23,9 @@ def ensure_store():
 
 @app.route('/')
 def index():
-    return render_template('login.html')
+    if 'username' in session:
+        return redirect(url_for('dashboard'))
+    return redirect(url_for('login'))   
 
 
 @app.route('/register', methods=['GET', 'POST'])

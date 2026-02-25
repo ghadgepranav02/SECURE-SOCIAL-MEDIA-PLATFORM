@@ -3,10 +3,58 @@
     "pranav02": {
       "password_hash": "f953e10666229021e422d64bbe77a8d0:667bceb868b2530cfd9dfe38db3f65a9460f5c28783f1ed16fd2719a3b51293c",
       "bio": "hii pranav here",
-      "failed_logins": 0,
+      "failed_logins": 1,
       "created": "2026-02-10T16:01:03.213953",
       "flagged": false
+    },
+    "vaishnavi30": {
+      "password_hash": "51ff9639344243c4a7b1e6894077e7ab:045ae15c5251366e2aabe5fab5fe71ce0d297602f9cac8ed6d5f26c9889e1edc",
+      "bio": "i am a user",
+      "failed_logins": 0,
+      "created": "2026-02-25T02:18:12.047432",
+      "flagged": false,
+      "email": "ghadge2022@gmail.com"
+    },
+    "Pranav22": {
+      "password_hash": "528a96fc48f12191d910a32a834a7052:a390afd76d89a9590bc9017515663d8924154e43998135ab84fcb306c7f809d8",
+      "bio": "i am a user",
+      "failed_logins": 0,
+      "created": "2026-02-25T02:19:43.044251",
+      "flagged": false,
+      "email": "pranav.17787@sakec.ac.in"
+    },
+    "seema12": {
+      "password_hash": "fccbb0e76ae95ccf584f170bba77b157:1e01cccfa5e89bb0d537846090ea827cde688e9fbe59927dc3cd1c310b5030a5",
+      "bio": "i am a user",
+      "failed_logins": 0,
+      "created": "2026-02-25T02:22:30.023247",
+      "flagged": false,
+      "email": "ghadge2007@gmail.com"
+    },
+    "pranav022": {
+      "password_hash": "83b9d18b4891a918a9db0a866809342c:2865622fb8ba6e279ab14e51f249114264ddc6231282d90771b64aa982e43f5a",
+      "bio": "i am user",
+      "failed_logins": 0,
+      "created": "2026-02-25T04:03:13.841691",
+      "flagged": false,
+      "email": "ghadge2007@gmail.com"
     }
   },
-  "messages": []
+  "messages": [
+    {
+      "sender": "pranav022",
+      "recipient": "vaishnavi30",
+      "ciphertext": "KSXKHWSCXONXIVCFTX",
+      "hash": "9836a73587d22d5330352b2441b547ba1f517b13ccb570953e16fe2dd21d23e8",
+      "key": "SECRET",
+      "timestamp": "2026-02-25T04:15:23.582790"
+    }
+  ],
+  "posts": [
+    {
+      "author": "pranav022",
+      "content": "i am currently doing aiml and i enjoy that",
+      "timestamp": "2026-02-25T04:15:08.209660"
+    }
+  ]
 }

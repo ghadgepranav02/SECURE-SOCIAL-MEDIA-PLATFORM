@@ -21,18 +21,27 @@ def save_store(path, store):
         json.dump(store, f, indent=2)
 
 
-def create_user(path, username, password, bio=''):
+def create_user(path, username, password, bio='', email=None):
+    """Create a new user record in the JSON store.
+
+    * `email` is optional but required if using the 2FA module; it is used
+      for delivering the OTP code.  Storing it here keeps all user details
+      together for the academic demo.
+    """
     store = load_store(path)
     salt = os.urandom(16)
     dk = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000)
     password_hash = salt.hex() + ':' + dk.hex()
-    store['users'][username] = {
+    user_record = {
         'password_hash': password_hash,
         'bio': bio,
         'failed_logins': 0,
         'created': datetime.utcnow().isoformat(),
         'flagged': False
     }
+    if email:
+        user_record['email'] = email
+    store['users'][username] = user_record
     save_store(path, store)
 
 

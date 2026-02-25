@@ -9,6 +9,20 @@ from crypto_utils import (
     load_store, save_store, create_user, verify_password, password_strength,
     compute_hash, check_fake_account
 )
+# new two-factor auth helpers
+from twofa_utils import generate_otp, send_otp_email, otp_expired
+
+import os
+
+# SMTP/2FA configuration pulled from environment for flexibility
+SMTP_CONFIG = {
+    'server': os.environ.get('OTP_SMTP_SERVER', 'smtp.gmail.com'),
+    'port': int(os.environ.get('OTP_SMTP_PORT', 587)),
+    'username': os.environ.get('OTP_SMTP_USER', ''),
+    'password': os.environ.get('OTP_SMTP_PASS', ''),
+    'sender': os.environ.get('OTP_SMTP_SENDER', os.environ.get('OTP_SMTP_USER', '')), 
+    'otp_valid_minutes': int(os.environ.get('OTP_VALID_MINUTES', 3))
+}
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -33,15 +47,18 @@ def register():
     if request.method == 'POST':
         username = request.form['username'].strip()
         password = request.form['password']
+        email = request.form.get('email', '').strip().lower()
         bio = request.form.get('bio', '')
         strength = password_strength(password)
         store = load_store(DATA_FILE)
         if username in store['users']:
             flash('Username already exists')
+        elif not email:
+            flash('Email is required for 2FA')
         elif strength == 'Weak':
             flash('Password too weak')
         else:
-            create_user(DATA_FILE, username, password, bio)
+            create_user(DATA_FILE, username, password, bio, email=email)
             flash('Registered successfully. Please log in.')
             return redirect(url_for('login'))
     return render_template('register.html')
@@ -59,10 +76,24 @@ def login():
             return render_template('login.html')
         ok = verify_password(user['password_hash'], password)
         if ok:
-            session['username'] = username
-            # Keep failed_logins count (don't reset) - stays flagged if accumulated >3
-            save_store(DATA_FILE, store)
-            return redirect(url_for('dashboard'))
+            # password correct; initiate 2FA step
+            email = user.get('email')
+            if not email:
+                flash('No email on file; contact administrator')
+                return render_template('login.html')
+            # generate OTP and store in session along with expiry
+            otp = generate_otp(6)
+            session['pending_user'] = username
+            session['otp'] = otp
+            expiry = datetime.utcnow() + timedelta(minutes=SMTP_CONFIG['otp_valid_minutes'])
+            session['otp_expiry'] = expiry.isoformat()
+            # send the OTP by email; failure does not block demo
+            sent = send_otp_email(email, otp, SMTP_CONFIG)
+            if not sent:
+                flash('Failed to send OTP email (see console for details)')
+            else:
+                flash('OTP sent to your email. Please enter it below.')
+            return redirect(url_for('verify_otp'))
         else:
             user['failed_logins'] = user.get('failed_logins', 0) + 1
             if user['failed_logins'] > 3:
@@ -76,6 +107,35 @@ def login():
 def logout():
     session.pop('username', None)
     return redirect(url_for('login'))
+
+
+# ------------------------------------------------------------------
+# Two-factor authentication verification route
+# ------------------------------------------------------------------
+@app.route('/verify_otp', methods=['GET', 'POST'])
+def verify_otp():
+    # user must have just passed the password check
+    if 'pending_user' not in session:
+        return redirect(url_for('login'))
+    error = None
+    if request.method == 'POST':
+        entered = request.form.get('otp', '').strip()
+        if otp_expired(session.get('otp_expiry', '')):
+            error = 'OTP has expired. Please login again.'
+            # clear state so they start over
+            session.pop('pending_user', None)
+            session.pop('otp', None)
+            session.pop('otp_expiry', None)
+        elif entered == session.get('otp'):
+            # success: move value into real session
+            session['username'] = session.pop('pending_user')
+            session.pop('otp', None)
+            session.pop('otp_expiry', None)
+            flash('Login successful (2FA passed)')
+            return redirect(url_for('dashboard'))
+        else:
+            error = 'Invalid OTP'
+    return render_template('verify_otp.html', error=error)
 
 
 @app.route('/dashboard')

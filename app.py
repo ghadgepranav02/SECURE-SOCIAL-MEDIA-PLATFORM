@@ -29,10 +29,8 @@ app.secret_key = os.urandom(24)
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), 'data_store.json')
 
-
-@app.before_first_request
-def ensure_store():
-    load_store(DATA_FILE)
+# ensure store exists at import time rather than using removed decorator
+load_store(DATA_FILE)
 
 
 @app.route('/')

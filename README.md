@@ -89,6 +89,22 @@ strengthens authentication.
 
 > NOTE: requirements.txt has been reduced to Flask & gunicorn for Render deployment.
 > Render logged Python 3.13 even though `runtime.txt` specifies 3.10.13; you can override the version in the service settings if needed.
+>
+> **Email (OTP) configuration**
+> - The app uses SMTP to deliver one‑time passwords.
+> - You must set the following environment variables in your Render service settings:
+>   ```
+>   OTP_SMTP_SERVER=smtp.gmail.com         # or your SMTP host
+>   OTP_SMTP_PORT=587                     # typically 587 for TLS
+>   OTP_SMTP_USER=youremail@example.com   # login user
+>   OTP_SMTP_PASS=yourpassword            # app password or smtp password
+>   OTP_SMTP_SENDER=youremail@example.com # optional
+>   OTP_VALID_MINUTES=3                   # OTP expiry window
+>   ```
+> - If credentials are missing the code falls back to a *simulated email* and prints the OTP in the application logs; check Render's dashboard logs if you don't receive mail.
+> - Failures during sending are also logged to the console and the login page will show “Failed to send OTP email (see console for details)”.
+> 
+> Without valid SMTP settings the mail step will not work, which is why your live deployment appears to be "not working".
 
   minutes). Upon generation the server stores both the code and an ISO
   timestamp in the Flask session (`otp_expiry`). When the user submits the

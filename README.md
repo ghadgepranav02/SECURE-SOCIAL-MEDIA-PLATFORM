@@ -86,6 +86,8 @@ strengthens authentication.
   suffices for the academic demo. In a real system a time‑based algorithm (e.g.
   TOTP) and secure RNG should be used.
 * **OTP expiry**: the code is valid for a short window (configurable 2–5
+
+> NOTE: requirements.txt has been reduced to Flask & gunicorn for Render deployment.
   minutes). Upon generation the server stores both the code and an ISO
   timestamp in the Flask session (`otp_expiry`). When the user submits the
   code the server checks the current time against the expiry; if the timestamp

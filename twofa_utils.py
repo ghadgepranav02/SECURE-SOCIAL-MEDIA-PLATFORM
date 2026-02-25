@@ -49,13 +49,26 @@ def send_otp_email(recipient: str, otp: str, config: dict) -> bool:
         print(f"[twofa_utils] (simulated email) OTP for {recipient}: {otp}")
         return True
     try:
-        with smtplib.SMTP(config['server'], config['port']) as smtp:
-            smtp.ehlo()
-            smtp.starttls()
+        # choose SSL if port 465 is requested (Gmail alt + avoids some firewall blocks)
+        if config.get('port') == 465:
+            smtp_class = smtplib.SMTP_SSL
+        else:
+            smtp_class = smtplib.SMTP
+
+        with smtp_class(config['server'], config['port']) as smtp:
+            # For non-SSL connections we must start TLS explicitly
+            if smtp_class is smtplib.SMTP:
+                smtp.ehlo()
+                smtp.starttls()
             smtp.login(config['username'], config['password'])
             smtp.send_message(msg)
         print(f"[twofa_utils] email sent successfully to {recipient}")
         return True
+    except SystemExit as e:
+        # smtplib may raise SystemExit when low-level socket exits,
+        # catch it separately so our worker doesn't quit.
+        print("[twofa_utils] SMTP connection failed (SystemExit):", e)
+        return False
     except Exception as e:
         # printing instead of logging for academic clarity
         print("[twofa_utils] failed to send email:", e)

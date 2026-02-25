@@ -23,6 +23,9 @@ SMTP_CONFIG = {
     'sender': os.environ.get('OTP_SMTP_SENDER', os.environ.get('OTP_SMTP_USER', '')), 
     'otp_valid_minutes': int(os.environ.get('OTP_VALID_MINUTES', 3))
 }
+# log config on startup (hide password) so that environment variable values can
+# be inspected in Render logs; helps debug missing SMTP credentials.
+print("[app] SMTP_CONFIG loaded:", {k:v for k,v in SMTP_CONFIG.items() if k != 'password'})
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
